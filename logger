@@ -1,0 +1,181 @@
+.model tiny
+.data
+
+codes db 256 dup(0)
+
+Old28_o dw 0
+Old28_s dw 0
+
+.code
+org 100h
+
+
+
+INT_9		equ 	9h*4h
+INT_28		equ	28h*4h
+
+Start:		
+		xor ax, ax
+		mov es, ax
+
+		cli
+		
+		mov bx, INT_9
+		mov dx, offset New09
+		call interupt_new_9
+
+		mov bx, 28h*4h
+		xor ax, ax
+		mov es, ax
+
+		mov ax, word ptr es:[bx]
+		mov word ptr Old28, ax
+		mov ax, word ptr es:[bx + 2]
+		mov word ptr Old28 + 2, ax
+
+		mov ax, 2528h
+		mov dx, offset new_28h
+		int 21h
+	
+		sti
+
+		call stay_resident
+
+
+
+
+New09		proc
+		
+		push ax bx
+		
+		;call write_scan_code
+		call shine_bit
+	
+		mov al, 20h            ;say that interupt ended		
+		out 20h, al
+
+		pop bx ax
+		
+		db 0eah
+Old09 		dw 0
+		dw 0
+
+		iret
+		endp
+
+New28		proc
+		pusha
+		popa
+
+
+
+		pushf
+		call dword ptr cs:[Old28]
+
+		
+		iret
+		endp
+Old28 dw 0
+      dw 0
+;===========================================
+;reads from 60 port and writes to massive
+;============================================
+write_scan_code	proc
+
+		xor bx, bx
+		in al, 60h
+
+		inc codes[0]
+		mov bl, codes[0]
+		mov codes[bx], al
+		
+		ret
+endp
+
+;===============================================
+;Destroy - ax
+;===============================================
+
+shine_bit 	proc
+
+		in al, 61h		
+		mov ah, al
+		or al, 80h		
+		out 61h, al
+		mov al, ah
+		out 61h, al
+
+		ret
+endp
+;==============================================
+;Destruct - bx, ax, es
+;Input    - bx - number of interuption * 4
+;         - dx - adress of NEw_interuption
+;Output - Old09 - adress of old interupt 
+;==============================================
+
+interupt_new_9	proc
+
+		xor ax, ax
+		mov es, ax
+
+		cli
+
+		mov ax, word ptr es:[bx]
+		mov Old09, ax
+		mov ax, word ptr es:[bx+2]
+		mov Old09 + 2, ax
+
+		mov word ptr es:[bx], dx
+		mov ax, cs
+		mov word ptr es:[bx+2], ax
+
+		sti
+
+		ret
+endp
+
+;==============================================
+;Destruct - bx, ax, es
+;Input    - bx - number of interuption * 4
+;         - dx - adress of NEw_interuption
+;Output - Old028 - adress of old interupt 
+;==============================================
+
+interupt_new_28	proc
+
+		;xor ax, ax
+		;mov es, ax
+
+		cli
+
+		mov ax, word ptr es:[bx]
+		mov Old28_s, ax
+		mov ax, word ptr es:[bx+2]
+		mov Old28_o, ax
+
+		mov word ptr es:[bx], dx
+		mov ax, cs
+		mov word ptr es:[bx+2], ax
+
+		sti
+
+		ret
+endp
+;============================================
+;Programm ends and stay resident
+;============================================
+
+RESIDENT	equ	3100h
+
+stay_resident	proc
+
+		mov ax, RESIDENT
+		mov dx, offset EndLabel 
+		shr dx, 4
+		inc dx  
+		int 21h
+		ret
+endp
+EndLabel:	 
+End Start	
