@@ -1,0 +1,152 @@
+
+section .data
+	num_len	equ 10
+	num: times num_len db 0
+
+	new_line db 'pizda', 10
+	t equ $-new_line
+
+section .text
+	global _start
+
+_start:
+	mov rax, 25
+	mov rbx, 2
+
+	;call to_sys
+	;call printf_line
+
+	;mov cl, 48
+	;call printf_symbol
+
+	mov r9, new_line
+	call printf_str
+
+	;mov eax, 4
+	;mov ebx, 1
+	;mov ecx, new_line
+	;mov edx, t
+	;int 80h
+
+	call end
+
+
+;=========================
+;strlen
+;Input: edi - const char*
+;Output: edx - string length
+;Destroy: edi, ecx
+;===========================
+strlen:
+	cld
+
+	xor ecx, ecx
+	dec ecx
+	xor eax, eax
+
+	repne	scasb
+
+	not ecx
+	dec edx
+	mov edx, ecx
+
+	ret
+
+;================================
+;Printf line
+;Input: r9 - char*
+;Destroy eax, ebx, edx
+;================================
+
+printf_str:
+	mov rdi, r9
+	call strlen
+
+
+	mov eax, 4
+	mov ebx, 1
+	mov rcx, r9
+
+	int 80h
+	ret
+
+;=====================
+;printf a symbol
+;Input: cl - symbol
+;Destroy: eax, ebx, edx, ecx
+;====================
+
+printf_symbol:
+	mov eax, 4
+	mov ebx, 1
+
+	mov byte [num], cl
+	mov ecx, num
+	mov edx, 1
+
+	int 80h
+	ret
+
+;==========================
+;Printf digit line
+;Input: num - digit line
+;       num_len - line length
+;       rcx     - number of digits
+;Destroy: eax, ebx, rcx, edx, r9
+;=====================
+
+printf_line:
+	mov eax, 4
+        mov ebx, 1
+        mov rdx, rcx
+
+        neg rcx
+        add ecx, num + num_len
+
+        int 80h
+
+	ret
+
+;========================
+;Transform digit in rbx system
+;Input: rax - number, rbx - sys_num
+;Output: num, rcx
+;Destroy: rsi, rdx, rcx, rax
+;======================
+
+to_sys:
+	mov esi, num + num_len
+	xor rcx, rcx
+loop:
+	div rbx
+	mov byte [esi], dl
+
+	cmp byte [esi], 9
+	jna small
+
+	add byte [esi], 55
+	jmp big
+
+small:
+	add byte [esi], 48
+
+big:
+	dec esi
+
+	inc rcx
+	cmp eax, 0
+	jne loop
+
+	dec rcx
+	ret
+
+;==========================
+;Ends programm
+;=========================
+
+end:
+	mov eax, 1
+	mov ebx, 0
+	int 80h
+
+	ret
