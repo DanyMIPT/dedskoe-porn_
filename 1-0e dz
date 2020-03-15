@@ -1,5 +1,8 @@
-
 section .data
+
+	buf db '%d%s      odcok %x%b%%%c pizda', 0
+	tmp times 256 db 0
+
 	num_len	equ 10
 	num: times num_len db 0
 
@@ -10,8 +13,8 @@ section .text
 	global _start
 
 _start:
-	mov rax, 25
-	mov rbx, 2
+	;mov rax, 25
+	;mov rbx, 2
 
 	;call to_sys
 	;call printf_line
@@ -19,17 +22,182 @@ _start:
 	;mov cl, 48
 	;call printf_symbol
 
-	mov r9, new_line
-	call printf_str
+	;mov r9, new_line
+	;call printf_str
 
-	;mov eax, 4
-	;mov ebx, 1
-	;mov ecx, new_line
-	;mov edx, t
-	;int 80h
+	push 256
+	push new_line
+	push 1024
+	push 25
+	push 49
+
+	mov r8, buf
+	call pars
 
 	call end
 
+;=========================
+;parser
+;Input: stack full of shit, r8 - line  to parse
+;Destroy:
+;============================
+pars:
+	push rbp
+	mov rbp, rsp
+
+	mov rcx, r8; pointer after %
+	mov rdx, r8; pointer before %
+	mov r15, 8
+while:
+	cmp byte [r8], 0
+
+	jne continue
+
+	call printf_text
+
+	pop rbp
+	ret
+
+continue:
+	cmp byte [r8], 37    ; % == 37
+	jne skip
+	call printf
+
+skip:
+	mov rdx, r8
+	inc r8
+	jmp while
+
+;===================================
+;switch what to do if %
+;==================================
+printf:
+	inc r8
+	call printf_text
+
+	cmp byte [r8], 120 ; 120 == x
+	jne skip_x
+	call pr_x
+	jmp end_p
+
+skip_x:
+	cmp byte [r8], 98 ; 98 == b
+	jne skip_b
+	call pr_b
+	jmp end_p
+
+skip_b:
+	cmp byte [r8], 100 ; 100 == d
+	jne skip_d
+	call pr_d
+	jmp end_p
+
+skip_d:
+	cmp byte [r8], 99 ; 99 == c
+	jne skip_c
+	call pr_c
+	jmp end_p
+
+skip_c:
+	cmp byte [r8], 115 ; 115 == s
+	jne skip_s
+	call pr_s
+	jmp end_p
+
+skip_s:
+	cmp byte[r8], 37 ; 37 == %
+	jne end_p
+	call pr_pr
+
+end_p:
+	mov rdx, r8
+	mov rcx, r8
+
+	add r15, 4
+	ret
+
+pr_pr:
+	mov al, 37
+	call printf_symbol
+
+	ret
+
+pr_s:
+	mov r9, [rbp + 28h]
+	call printf_str
+
+	ret
+
+pr_c:
+	mov al, [rbp + r15]
+	call printf_symbol
+
+	ret
+
+
+pr_digit:
+	mov rax, [rbp + 30h]
+
+	push rcx
+	call to_sys
+	call printf_line
+	pop rcx
+
+	ret
+
+pr_x:
+	mov rbx, 16
+	call pr_digit
+
+	ret
+
+pr_b:
+	mov rbx, 2
+	call pr_digit
+
+	ret
+
+pr_d:
+	mov rbx, 10
+	call pr_digit
+
+	ret
+;=======================
+;printf text
+;Input: ecx - char*, edx - length
+;Destruct: eax, ebx
+;=======================
+
+printf_text:
+	push rax
+	push rbx
+	push rcx
+	push rdx
+
+
+	mov eax, 4
+	mov ebx, 1
+
+	sub rdx, rcx
+	inc rdx
+	add rcx, 1
+
+	cmp rdx, 1
+	je exit_
+
+	int 80h
+
+exit_:
+
+	mov rdx, r8
+	mov rcx, r8
+
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rax
+
+	ret
 
 ;=========================
 ;strlen
@@ -55,36 +223,63 @@ strlen:
 ;================================
 ;Printf line
 ;Input: r9 - char*
-;Destroy eax, ebx, edx
+;Destroy eax, ebx, edx, rcx
 ;================================
 
 printf_str:
+	push rax
+	push rbx
+	push rcx
+	push rdx
+
 	mov rdi, r9
 	call strlen
 
+	cmp edx, 0
+	je exit
 
 	mov eax, 4
 	mov ebx, 1
 	mov rcx, r9
 
 	int 80h
+
+exit:
+	pop rdx 
+	pop rcx
+	pop rbx
+	pop rax
+
 	ret
 
 ;=====================
 ;printf a symbol
-;Input: cl - symbol
-;Destroy: eax, ebx, edx, ecx
+;Input: r11 - symbol
+;Destroy: rax, rbx, rdx, rcx
 ;====================
 
 printf_symbol:
+	push rax
+	push rbx
+	push rcx
+	push rdx
+
 	mov eax, 4
 	mov ebx, 1
+
+	mov rcx, r11
 
 	mov byte [num], cl
 	mov ecx, num
 	mov edx, 1
 
 	int 80h
+
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rax
+
 	ret
 
 ;==========================
@@ -96,14 +291,23 @@ printf_symbol:
 ;=====================
 
 printf_line:
+	push rax
+	push rbx
+	push rdx
+
 	mov eax, 4
         mov ebx, 1
         mov rdx, rcx
+	inc rdx
 
         neg rcx
-        add ecx, num + num_len
+        add ecx, num + num_len - 1
 
         int 80h
+
+	pop rdx
+	pop rbx
+	pop rax
 
 	ret
 
@@ -115,10 +319,20 @@ printf_line:
 ;======================
 
 to_sys:
-	mov esi, num + num_len
+	push rax
+	push rbx
+	push rdx
+	push rsi
+
+	mov rsi, num + num_len - 1
 	xor rcx, rcx
+	;mov rdx, rax
+	;xor rax, rax
+
+	mov r13, rbx
 loop:
-	div rbx
+	xor rdx, rdx
+	idiv r13
 	mov byte [esi], dl
 
 	cmp byte [esi], 9
@@ -138,6 +352,11 @@ big:
 	jne loop
 
 	dec rcx
+
+	pop rsi
+	pop rdx
+	pop rbx
+	pop rax
 	ret
 
 ;==========================
