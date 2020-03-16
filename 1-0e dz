@@ -1,6 +1,6 @@
 section .data
 
-	buf db '%d%s      odcok %x%b%%%c pizda', 0
+	buf db ' %d uiuiuiu %s popa  %b   odcok %x%b%%       %c pizda', 0
 	tmp times 256 db 0
 
 	num_len	equ 10
@@ -25,11 +25,12 @@ _start:
 	;mov r9, new_line
 	;call printf_str
 
-	push 256
-	push new_line
-	push 1024
+	push 80
 	push 25
-	push 49
+	push 1024
+	push 225
+	push new_line
+	push 256
 
 	mov r8, buf
 	call pars
@@ -47,7 +48,7 @@ pars:
 
 	mov rcx, r8; pointer after %
 	mov rdx, r8; pointer before %
-	mov r15, 8
+	mov r15, 16
 while:
 	cmp byte [r8], 0
 
@@ -113,7 +114,7 @@ end_p:
 	mov rdx, r8
 	mov rcx, r8
 
-	add r15, 4
+	add r15, 8
 	ret
 
 pr_pr:
@@ -123,7 +124,7 @@ pr_pr:
 	ret
 
 pr_s:
-	mov r9, [rbp + 28h]
+	mov r9, [rbp + r15]
 	call printf_str
 
 	ret
@@ -136,7 +137,7 @@ pr_c:
 
 
 pr_digit:
-	mov rax, [rbp + 30h]
+	mov rax, [rbp + r15]
 
 	push rcx
 	call to_sys
@@ -179,7 +180,6 @@ printf_text:
 	mov ebx, 1
 
 	sub rdx, rcx
-	inc rdx
 	add rcx, 1
 
 	cmp rdx, 1
@@ -264,12 +264,12 @@ printf_symbol:
 	push rcx
 	push rdx
 
+	mov byte [num], al
+
 	mov eax, 4
 	mov ebx, 1
 
 	mov rcx, r11
-
-	mov byte [num], cl
 	mov ecx, num
 	mov edx, 1
 
