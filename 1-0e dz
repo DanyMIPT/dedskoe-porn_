@@ -25,7 +25,7 @@ _start:
 	;mov r9, new_line
 	;call printf_str
 
-	push 80
+	push 48
 	push 25
 	push 1024
 	push 225
@@ -109,6 +109,7 @@ skip_s:
 	cmp byte[r8], 37 ; 37 == %
 	jne end_p
 	call pr_pr
+	sub r15, 8
 
 end_p:
 	mov rdx, r8
