@@ -1,12 +1,12 @@
 section .data
 
-	buf db ' %d uiuiuiu %s popa  %b   odcok %x%b%%       %c pizda', 0
+	buf db "%d  %s sanya go buhat'  %o %b %x %b %% %c", 0
 	tmp times 256 db 0
 
 	num_len	equ 10
 	num: times num_len db 0
 
-	new_line db 'pizda', 10
+	new_line db "mipt", 10
 	t equ $-new_line
 
 section .text
@@ -25,10 +25,11 @@ _start:
 	;mov r9, new_line
 	;call printf_str
 
-	push 48
+	push 49
 	push 25
 	push 1024
 	push 225
+	push 10
 	push new_line
 	push 256
 
@@ -54,6 +55,7 @@ while:
 
 	jne continue
 
+
 	call printf_text
 
 	pop rbp
@@ -76,12 +78,19 @@ printf:
 	inc r8
 	call printf_text
 
+	cmp byte [r8], 111 ; 111 = o
+	jne skip_o
+	call pr_o
+	jmp end_p
+skip_o:
+
 	cmp byte [r8], 120 ; 120 == x
 	jne skip_x
 	call pr_x
 	jmp end_p
 
 skip_x:
+
 	cmp byte [r8], 98 ; 98 == b
 	jne skip_b
 	call pr_b
@@ -147,6 +156,12 @@ pr_digit:
 
 	ret
 
+pr_o:
+	mov rbx, 8
+	call pr_digit
+
+	ret
+
 pr_x:
 	mov rbx, 16
 	call pr_digit
@@ -171,6 +186,9 @@ pr_d:
 ;=======================
 
 printf_text:
+	cmp rdx, 0
+	je exit_
+
 	push rax
 	push rbx
 	push rcx
@@ -183,12 +201,7 @@ printf_text:
 	sub rdx, rcx
 	add rcx, 1
 
-	cmp rdx, 1
-	je exit_
-
 	int 80h
-
-exit_:
 
 	mov rdx, r8
 	mov rcx, r8
@@ -198,6 +211,7 @@ exit_:
 	pop rbx
 	pop rax
 
+exit_:
 	ret
 
 ;=========================
