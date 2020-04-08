@@ -359,19 +359,22 @@ int Delete (int physics_number, struct list * List)
 int FindValue (char* value, struct list * List)
 {
     int logical_number = 0;
-    for (int i = 0; i < size; i++)
+    for (int i = List->head; ;)
     {
-        if (List->data[i] != nullptr && strcmp (value, List->data[i]) == 0)
+
+        if (i == List->tail)
+        {
+            return NO_POSITION;
+        }
+
+        if (strcmp (value, List->data[i]) == 0)
         {
             logical_number = i;
             break;
         }
-        if (List->data[i] == nullptr || i == size - 1)
-        {
-            return NO_POSITION;
-        }
+
+        i = List->next[i];
     }
-    //int position = FindPositionVeeryVerySlow /* surprise! */ (logical_number, List);
 
     return logical_number;
 }
@@ -405,6 +408,5 @@ void DeleteList (struct list * List)
     List->free = POISON;
 
     free (List);
-    List = nullptr;
 }
 
