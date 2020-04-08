@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <assert.h>
+#include <cstring>
 #include "stdio.h"
 
 enum {
@@ -11,11 +12,11 @@ enum {
     LIST_OVERFLOW = -55,
     LIST_IS_OK = 11,
     ARRAY_ERROR = 333,
-    NO_POSITION = 589,
+    NO_POSITION = -9,
     POISON = -895622,
 };
 
-const int size = 3000;
+const int size = 40000;
 
 struct list {
         char** data;
@@ -126,11 +127,13 @@ void Dump(struct list * List)
 
     fclose (out);
 
-    system ("dot list.dot -T png -o list.png");
+    system ("D:\\Graphiz\\bin\\dot.exe list.dot -T png -o list.png");
+    system ("list.png");
 }
 
 void ListInit (list * List)
 {
+
     List->data = (char**) calloc (size, sizeof (char*));
     List->next = (int*) calloc (size, sizeof (int));
     List->prev = (int*) calloc (size, sizeof (int));
@@ -353,24 +356,24 @@ int Delete (int physics_number, struct list * List)
     return LIST_IS_OK;
 }
 
-int FindPositionOnValue (char* value, struct list * List)
+int FindValue (char* value, struct list * List)
 {
     int logical_number = 0;
     for (int i = 0; i < size; i++)
     {
-        if (value == List->data[i])
+        if (List->data[i] != nullptr && strcmp (value, List->data[i]) == 0)
         {
             logical_number = i;
             break;
         }
-        if (i == size - 1)
+        if (List->data[i] == nullptr || i == size - 1)
         {
             return NO_POSITION;
         }
     }
-    int position = FindPositionVeeryVerySlow /* surprise! */ (logical_number, List);
+    //int position = FindPositionVeeryVerySlow /* surprise! */ (logical_number, List);
 
-    return position;
+    return logical_number;
 }
 
 int FindPositionVeeryVerySlow (int logical_number, struct list * List)
@@ -401,6 +404,7 @@ void DeleteList (struct list * List)
     List->sort = POISON;
     List->free = POISON;
 
+    free (List);
     List = nullptr;
 }
 
