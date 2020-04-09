@@ -16,91 +16,310 @@ enum {
     POISON = -895622,
 };
 
-const int size = 40000;
+const int size_ = 40000;
 
-struct list {
-        char** data;
-        int* next;
-        int* prev;
-        int head;
-        int tail;
-        int free;
-        int size;
-        int sort;
+//struct list {
+//        char** data;
+//        int* next;
+//        int* prev;
+//        int head;
+//        int tail;
+//        int free;
+//        int size;
+//        int sort;
+//};
+
+template<typename TypeValue, typename HashValue>
+class list
+{
+public:
+    HashValue* hash;
+    TypeValue* value;
+    int* next;
+    int* prev;
+    int head;
+    int tail;
+    int free;
+    int size;
+    int sort;
+
+    list ();
+    ~list ();
+    int PushBack (HashValue hash, TypeValue value);
+    int InsertAfter (int physics_number, HashValue hash, TypeValue value);
+    int PushFront (HashValue hash, TypeValue value);
+    int InsertBefore (int physics_number, HashValue hash, TypeValue value);
+    void Dump();
+    int Delete (int physics_number);
+    int FindValue (HashValue hash);
+    void clear ();
 };
 
 /*!
  * Initilisize List
- * @param list
  */
-void ListInit (list * List);
+template <typename TypeValue, typename HashValue>
+list <TypeValue, HashValue>::list ()
+{
+    hash = new HashValue[size_];
+    value = new TypeValue[size_];
+    next = new int[size_];
+    prev = new int[size_];
+
+    prev[0] = HEAD;
+    next[0] = TAIL;
+
+    for (int i = 1; i < size_ - 1; i++)
+    {
+        next[i] = i + 1;
+        prev[i] = NOTHING;
+    }
+
+    prev[size_ - 1] = NOTHING;
+    next[size_ - 1] = LAST_FREE_PLACE;
+
+    head = 1;
+    tail = 1;
+    free = 1;
+    size = 0;
+
+    sort = 1;
+}
 
 /*!
  * Push the value in the end of the list
  * @param value
- * @param List
  * @return physics_number of value
  */
-int PushBack (char* value, struct list * List);
+template <typename TypeValue, typename HashValue>
+int list <TypeValue, HashValue>::PushBack (HashValue hash_, TypeValue value_)
+{
+    int tmp = free;
+
+    free = next[free];
+
+    hash[tmp]  = hash_;
+    value[tmp] = value_;
+    next[tmp]  = TAIL;
+
+
+    if (size != 0)
+    {
+        next[tail] = tmp;
+        prev[tmp] = tail;
+    }
+
+    tail = tmp;
+    size++;
+
+    return tmp;
+}
 
 /*!
  * Put the value after physics_number
  * @param physics_number after to put
  * @param value
- * @param List
  * @return physics_number of value
  */
-int InsertAfter (int physics_number, char* value, struct list * List);
+template <typename TypeValue, typename HashValue>
+int list <TypeValue, HashValue>::InsertAfter (int physics_number, HashValue hash, TypeValue value)
+{
+    int tmp = 0;
+
+    if (size == 0 )
+    {
+        if (physics_number != 0)
+        {
+            printf ("Incorrect command\n");
+            return INCORRECT_COMMAND;
+        }
+
+        tmp = PushFront (value);
+    }
+    else
+    {
+        if (physics_number != tail)
+        {
+            sort = 0;
+        }
+
+        tmp = free;
+
+        free = next[free];
+
+        hash[tmp] = hash;
+        value[tmp] = value;
+        prev[tmp] = physics_number;
+        next[physics_number] = tmp;
+
+        if (tail == physics_number)
+        {
+            tail = tmp;
+            next[tmp] = 0;
+        }
+        else
+        {
+            next[tmp] = next[physics_number];
+            prev[next[physics_number]] = tmp;
+        }
+
+    }
+
+    size++;
+
+    return tmp;
+}
 
 /*!
  * Push the value in the beginning of the list
  * @param value
- * @param List
  * @return physics_number of value
  */
-int PushFront (char* value, struct list * List);
+template <typename TypeValue, typename HashValue>
+int list <TypeValue, HashValue>::PushFront (HashValue hash, TypeValue value)
+{
+    int tmp = free;
+
+    if (size != 1)
+    {
+        sort = 0;
+    }
+
+    free = next[free];
+
+    hash[tmp]  = hash;
+    value[tmp] = value;
+    prev[tmp]  = HEAD;
+
+    if (size == 0)
+    {
+        next[tmp] = TAIL;
+    }
+    else
+    {
+        prev[head] = tmp;
+        next[tmp] = head;
+    }
+
+    head = tmp;
+    size++;
+
+    return tmp;
+}
 
 /*!
  * Put the value before physics_number
  * @param physics_number before to put
  * @param value
- * @param List
  * @return physics_number of value
  */
-int InsertBefore (int physics_number, char* value, struct list * List);
+template <typename TypeValue, typename HashValue>
+int list <TypeValue, HashValue>::InsertBefore (int physics_number, HashValue hash, TypeValue value)
+{
+    hash[free]  = hash;
+    value[free] = value;
+
+    int tmp = 0;
+
+    if (size == 0 )
+    {
+        if (physics_number != 0)
+        {
+            printf ("Incorrect command\n");
+            return INCORRECT_COMMAND;
+        }
+
+        tmp = PushBack (value);
+    }
+    else
+    {
+        if (physics_number != head)
+        {
+            sort = 0;
+        }
+
+        tmp = free;
+        free = next[free];
+
+        if (head == physics_number)
+        {
+            head = tmp;
+            prev[tmp] = HEAD;
+        }
+        else
+        {
+            prev[tmp] = prev[physics_number];
+            next[prev[physics_number]] = tmp;
+        }
+        next[tmp] = physics_number;
+        prev[physics_number] = tmp;
+    }
+
+    size++;
+
+    return tmp;
+}
 
 /*!
  * Deletes element on physics_number
  * @param physics_number
  * @param List
  */
-int Delete (int physics_number, struct list * List);
+template <typename TypeValue, typename HashValue>
+int list<TypeValue, HashValue>::Delete (int physics_number)
+{
+    if (physics_number != head && prev[physics_number] == NOTHING)
+    {
+        printf ("Incorrect command\n");
+        return INCORRECT_COMMAND;
+    }
+
+    if ((physics_number != head) || (physics_number != tail))
+    {
+        sort = 0;
+    }
+
+    if (physics_number == head)
+    {
+        if (size != 1)
+        {
+            head = next[physics_number];
+            prev[next[physics_number]] = NOTHING;
+        }
+    }
+    else
+    {
+        if (physics_number == tail)
+        {
+            if (size != 1)
+            {
+                tail = prev[physics_number];
+                next[prev[physics_number]] = TAIL;
+            }
+        }
+        else
+        {
+            prev[next[physics_number]] = prev[physics_number];
+            next[prev[physics_number]] = next[physics_number];
+        }
+    }
+
+    prev[physics_number] = NOTHING;
+    next[physics_number] = free;
+
+    free = physics_number;
+
+    size--;
+    return LIST_IS_OK;
+}
 
 
 /*!
  * Paint all the list
  * @param List
  */
-void Dump(struct list * List);
-
-/*!
- * Find position in the List by value
- * @param value
- * @param List
- * @return position
- */
-int FindPositionOnValue (char* value, struct list * List);
-
-/*!
- *  Find position in the List by logical number
- * @param logical_number
- * @param List
- * @return position
- */
-int FindPositionVeeryVerySlow (int logical_number, struct list * List);
-
-
-void Dump(struct list * List)
+template <typename TypeValue, typename HashValue>
+void list<TypeValue, HashValue>::Dump()
 {
     FILE* out = fopen ("list.dot", "w");
 
@@ -109,7 +328,7 @@ void Dump(struct list * List)
     for (int i = 0; i < size; i++)
     {
         fprintf (out, "%d [shape=record,label=\"  <l%d> logic number = %d | value = %s | <p%d> prev = %d | <n%d> next = %d  \"];\n",
-                 i, i, i, List->data[i], i, List->prev[i], i, List->next[i]);
+                 i, i, i, value[i], i, prev[i], i, next[i]);
     }
 
     for (int i = 0; i < size; i++)
@@ -121,7 +340,7 @@ void Dump(struct list * List)
     fprintf (out, ";\n");
 
     for (int i = 0; i < size; i++)
-        fprintf (out, "%d:<n%d> -> %d:<%d>;\n", i, i, List->next[i], List->next[i]);
+        fprintf (out, "%d:<n%d> -> %d:<%d>;\n", i, i, next[i], next[i]);
 
     fprintf (out, "\n}");
 
@@ -131,282 +350,62 @@ void Dump(struct list * List)
     system ("list.png");
 }
 
-void ListInit (list * List)
-{
-
-    List->data = (char**) calloc (size, sizeof (char*));
-    List->next = (int*) calloc (size, sizeof (int));
-    List->prev = (int*) calloc (size, sizeof (int));
-
-    List->prev[0] = HEAD;
-    List->data[0] = nullptr;
-    List->next[0] = TAIL;
-
-    for (int i = 1; i < size - 1; i++)
-    {
-        List->next[i] = i + 1;
-        List->prev[i] = NOTHING;
-    }
-
-    List->prev[size - 1] = NOTHING;
-    List->next[size - 1] = LAST_FREE_PLACE;
-
-    List->head = 1;
-    List->tail = 1;
-    List->free = 1;
-    List->size = 0;
-
-    List->sort = 1;
-}
-
-
-int PushFront (char* value, struct list * List)
-{
-    int tmp = List->free;
-
-    if (List->size != 1)
-    {
-        List->sort = 0;
-    }
-
-    List->free = List->next[List->free];
-
-    List->data[tmp] = value;
-    List->prev[tmp] = HEAD;
-
-    if (List->size == 0)
-    {
-        List->next[tmp] = TAIL;
-    }
-    else
-    {
-        List->prev[List->head] = tmp;
-        List->next[tmp] = List->head;
-    }
-
-    List->head = tmp;
-    List->size++;
-
-    return tmp;
-}
-
-int InsertAfter (int physics_number, char* value, struct list * List)
-{
-    int tmp = 0;
-
-    if (List->size == 0 )
-    {
-        if (physics_number != 0)
-        {
-            printf ("Incorrect command\n");
-            return INCORRECT_COMMAND;
-        }
-
-        tmp = PushFront (value, List);
-    }
-    else
-    {
-        if (physics_number != List->tail)
-        {
-            List->sort = 0;
-        }
-
-        tmp = List->free;
-
-        List->free = List->next[List->free];
-
-        List->data[tmp] = value;
-        List->prev[tmp] = physics_number;
-        List->next[physics_number] = tmp;
-
-        if (List->tail == physics_number)
-        {
-            List->tail = tmp;
-            List->next[tmp] = 0;
-        }
-        else
-        {
-            List->next[tmp] = List->next[physics_number];
-            List->prev[List->next[physics_number]] = tmp;
-        }
-
-    }
-
-    List->size++;
-
-    return tmp;
-}
-
-
-int PushBack (char* value, struct list * List)
-{
-    int tmp = List->free;
-
-    List->free = List->next[List->free];
-
-    List->data[tmp] = value;
-    List->next[tmp] = TAIL;
-
-
-    if (List->size != 0)
-    {
-        List->next[List->tail] = tmp;
-        List->prev[tmp] = List->tail;
-    }
-
-    List->tail = tmp;
-    List->size++;
-
-    return tmp;
-}
-
-// DRY
-
-int InsertBefore (int physics_number, char* value, struct list * List)
-{
-    List->data[List->free] = value;
-
-    int tmp = 0;
-
-    if (List->size == 0 )
-    {
-        if (physics_number != 0)
-        {
-            printf ("Incorrect command\n");
-            return INCORRECT_COMMAND;
-        }
-
-        tmp = PushBack (value, List);
-    }
-    else
-    {
-        if (physics_number != List->head)
-        {
-            List->sort = 0;
-        }
-
-        tmp = List->free;
-        List->free = List->next[List->free];
-
-        if (List->head == physics_number)
-        {
-            List->head = tmp;
-            List->prev[tmp] = HEAD;
-        }
-        else
-        {
-            List->prev[tmp] = List->prev[physics_number];
-            List->next[List->prev[physics_number]] = tmp;
-        }
-        List->next[tmp] = physics_number;
-        List->prev[physics_number] = tmp;
-    }
-
-    List->size++;
-
-    return tmp;
-}
-
-int Delete (int physics_number, struct list * List)
-{
-
-    if (physics_number != List->head && List->prev[physics_number] == NOTHING)
-    {
-        printf ("Incorrect command\n");
-        return INCORRECT_COMMAND;
-    }
-
-    if ((physics_number != List->head) || (physics_number != List->tail))
-    {
-        List->sort = 0;
-    }
-
-    if (physics_number == List->head)
-    {
-        if (List->size != 1)
-        {
-            List->head = List->next[physics_number];
-            List->prev[List->next[physics_number]] = NOTHING;
-        }
-    }
-    else
-    {
-        if (physics_number == List->tail)
-        {
-            if (List->size != 1)
-            {
-                List->tail = List->prev[physics_number];
-                List->next[List->prev[physics_number]] = TAIL;
-            }
-        }
-        else
-        {
-            List->prev[List->next[physics_number]] = List->prev[physics_number];
-            List->next[List->prev[physics_number]] = List->next[physics_number];
-        }
-    }
-
-    List->data[physics_number] = nullptr;
-    List->prev[physics_number] = NOTHING;
-    List->next[physics_number] = List->free;
-
-    List->free = physics_number;
-
-    List->size--;
-    return LIST_IS_OK;
-}
-
-int FindValue (char* value, struct list * List)
+/*!
+ * Find position in the List by value
+ * @param value
+ * @param List
+ * @return position
+ */
+template <typename TypeValue, typename HashValue>
+int list<TypeValue, HashValue>::FindValue (HashValue hash_)
 {
     int logical_number = 0;
-    for (int i = List->head; ;)
+    for (int i = head; ;)
     {
-
-        if (i == List->tail)
-        {
-            return NO_POSITION;
-        }
-
-        if (strcmp (value, List->data[i]) == 0)
+        if (size != 0 && strcmp (hash_, hash[i]) == 0)
         {
             logical_number = i;
             break;
         }
 
-        i = List->next[i];
+        if (i == tail)
+        {
+            return NO_POSITION;
+        }
+
+        i = next[i];
     }
 
     return logical_number;
 }
 
-int FindPositionVeeryVerySlow (int logical_number, struct list * List)
+template <typename TypeValue, typename HashValue>
+list <TypeValue, HashValue>::~list ()
 {
-    if ((List->prev[logical_number] == NOTHING) && (logical_number != List->head))   return NO_POSITION;
+    delete next, prev, value, hash;
+}
 
-    if (List->sort == 1)        return logical_number;
+template <typename TypeValue, typename HashValue>
+void list <TypeValue, HashValue>::clear ()
+{
+    prev[0] = HEAD;
+    next[0] = TAIL;
 
-    int position = 1;
-
-    while (List->prev[logical_number] != HEAD)
+    for (int i = 1; i < size_ - 1; i++)
     {
-        position++;
-        logical_number = List->prev[logical_number];
+        next[i] = i + 1;
+        prev[i] = NOTHING;
     }
-    return position;
+
+    prev[size_ - 1] = NOTHING;
+    next[size_ - 1] = LAST_FREE_PLACE;
+
+    head = 1;
+    tail = 1;
+    free = 1;
+    size = 0;
+
+    sort = 1;
 }
 
-void DeleteList (struct list * List)
-{
-    free (List->next);
-    free (List->prev);
-    free (List->data);
-
-    List->head = POISON;
-    List->size = POISON;
-    List->tail = POISON;
-    List->sort = POISON;
-    List->free = POISON;
-
-    free (List);
-}
 

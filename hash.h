@@ -56,7 +56,7 @@ ull hash4 (const char* word, size_t mod)
 
 ull hash5 (const char* word, size_t mod)
 {
-    static ull sum;
+    ull sum = 0;
 
     int length = strlen (word);
     for (size_t i = 0; i < length; i++)

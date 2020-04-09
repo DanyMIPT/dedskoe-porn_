@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "assert.h"
 #include "sys/stat.h"
 /*!
@@ -106,6 +107,7 @@ char* Buf ( const char* name, int length )
     assert ( name );
     assert (length>0 );
     char* buffer = ( char* )  calloc ( length + 1, sizeof (char) );
+
 
     FILE *fp = fopen(name, "rb");
     assert ( fp );

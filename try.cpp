@@ -1,14 +1,12 @@
 #define p printf ("here");
 
-#include "list.h"
+
 #include "myLib.h"
 #include <cctype>
 #include "hash.h"
 #include "HashTable.h"
 
 char* ClearText (const char* file, ull& new_size);
-void WriteResults (const char* file, list** l);
-void FillHashTable (char* buf, ull buf_size, ull (*hash)(const char* , size_t));
 
 const size_t num_lists = 3001;
 
@@ -21,69 +19,32 @@ const char* file_name  = "results.cvs";
 
 int main ()
 {
+
     FILE *fp = fopen(file_name, "w");
     fclose (fp);
 
     ull size_clear = 0;
     char* words = ClearText (text, size_clear);
 
-    FillHashTable (words, size_clear, hash1);
-    FillHashTable (words, size_clear, hash2);
-    FillHashTable (words, size_clear, hash3);
-    FillHashTable (words, size_clear, hash4);
-    FillHashTable (words, size_clear, hash5);
-    FillHashTable (words, size_clear, MurMurHash2);
-    FillHashTable (words, size_clear, fletcher);
 
+    HashTable <int> table (words, size_clear, num_lists, hash1);
+    table.dumpSize (file_name);
+
+    ull (*hash[6])(const char* , size_t) = {hash2, hash3, hash4, hash5, hash6, hash7};
+
+    for (auto & i : hash)
+    {
+        table.clear ();
+        table.update_hash (i);
+        table.update (words, size_clear);
+        table.dumpSize (file_name);
+    }
 
     free (words);
 }
 
 #undef MurMurHash2
 #undef fletcher
-
-
-void WriteResults (const char* file, list** l)
-{
-    FILE *fp = fopen(file, "a+");
-
-    for (size_t i = 0; i < num_lists; i++)
-    {
-        fprintf (fp, "%d; ",  l[i]->size);
-        DeleteList (l[i]);
-    }
-    free (l);
-
-    fprintf (fp, "\n");
-    fclose (fp);
-}
-
-void FillHashTable (char* buf, ull buf_size, ull (*hash)(const char* , size_t))
-{
-    list** List = (list**) calloc (num_lists, sizeof (list*));
-    for (int i = 0; i < num_lists; i++)
-        List[i] = (list*) calloc (num_lists, sizeof (list));
-
-
-    for (size_t i = 0; i < num_lists; i++)
-    {
-        ListInit (List[i]);
-    }
-
-    for (size_t i = 0; i < buf_size; i++)
-    {
-        int num = hash (&buf[i], num_lists);
-        PushBack (&buf[i], List[num]);
-
-        do
-        {
-            i++;
-        }
-        while (buf[i] != '\0');
-    }
-
-    WriteResults (file_name, List);
-}
 
 char* ClearText (const char* file, ull& new_size)
 {
@@ -118,5 +79,7 @@ char* ClearText (const char* file, ull& new_size)
     new_size = k;
     return clear_text;
 }
+
+
 
 
