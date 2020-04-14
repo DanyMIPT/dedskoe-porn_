@@ -21,7 +21,7 @@ template <typename TypeValue>
 class HashTable
 {
 private:
-    list<TypeValue, char*>* List;
+    list<TypeValue, char*>** List;
 
     size_t num_lists;
     hash_func hash;
@@ -51,7 +51,10 @@ HashTable<TypeValue>::HashTable (const char* text, int size_lists, hash_func has
     hash(hash),
     List(nullptr)
 {
-    List = new list<TypeValue, char*>[num_lists];
+    List = new list<TypeValue, char*>*[num_lists];
+
+    for (size_t i = 0; i < num_lists; i++)
+        List[i] = new list<TypeValue, char*>;
 
 
     hash_t size_clear = 0;
@@ -112,9 +115,9 @@ template <typename TypeValue>
 HashTable<TypeValue>::~HashTable ()
 {
     for (int i = 0; i < num_lists; i++)
-        List[i].~list();
+        delete List[i];
 
-    delete &List;
+    delete List;
 }
 
 template <typename TypeValue>
@@ -124,7 +127,7 @@ void HashTable<TypeValue>::dumpSize (const char* file)
 
     for (size_t i = 0; i < num_lists; i++)
     {
-        fprintf (fp, "%d; ",  List[i].size);
+        fprintf (fp, "%d; ",  List[i]->size);
     }
 
     fprintf (fp, "\n");
@@ -137,7 +140,7 @@ void HashTable<TypeValue>::insert (char* word, TypeValue value)
     if (find (word) == NO_POSITION)
     {
         int num = hash (word, num_lists);
-        List[num].PushBack (word, value);
+        List[num]->PushBack (word, value);
     }
 
 }
@@ -147,7 +150,7 @@ int HashTable<TypeValue>::find (char* word)
 {
     int num = hash (word, num_lists);
 
-    int log_num = List[num].FindValue (word);
+    int log_num = List[num]->FindValue (word);
     if (log_num == NO_POSITION)
         return NO_POSITION;
     else
@@ -189,7 +192,10 @@ HashTable <TypeValue>::HashTable (char* buf, hash_t size_clear, hash_t size_list
     hash(hash),
     List(nullptr)
 {
-    List = new list<TypeValue, char*>[num_lists];
+    List = new list<TypeValue, char*>*[num_lists];
+
+    for (size_t i = 0; i < num_lists; i++)
+        List[i] = new list<TypeValue, char*>;
 
     for (size_t i = 0; i < size_clear - 1; i++)
     {
@@ -208,7 +214,7 @@ void HashTable <TypeValue>::clear (hash_func hash_)
 {
     for (size_t i = 0; i < num_lists; i++)
     {
-        List[i].clear ();
+        List[i]->clear ();
     }
 
     if (hash_ != nullptr)
@@ -238,6 +244,9 @@ HashTable <TypeValue>::HashTable (hash_t size_lists,  hash_func hash):
     hash(hash),
     List(nullptr)
 {
-    List = new list<TypeValue, char*>[num_lists];
+    List = new list<TypeValue, char*>*[num_lists];
+
+    for (size_t i = 0; i < num_lists; i++)
+        List[i] = new list<TypeValue, char*>;
 }
 
