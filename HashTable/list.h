@@ -379,6 +379,7 @@ int list<TypeValue, HashValue>::FindValue (HashValue hash_)
     return logical_number;
 }
 
+#include <iostream>
 template <typename TypeValue, typename HashValue>
 list <TypeValue, HashValue>::~list ()
 {

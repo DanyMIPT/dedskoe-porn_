@@ -111,7 +111,10 @@ char* HashTable<TypeValue>::ClearText (const char* file, hash_t& new_size)
 template <typename TypeValue>
 HashTable<TypeValue>::~HashTable ()
 {
-    delete List;
+    for (int i = 0; i < num_lists; i++)
+        List[i].~list();
+
+    delete &List;
 }
 
 template <typename TypeValue>
