@@ -362,7 +362,7 @@ int list<TypeValue, HashValue>::FindValue (HashValue hash_)
     int logical_number = 0;
     for (int i = head; ;)
     {
-        if (size != 0 && strcmp (hash_, hash[i]) == 0)
+        if (size != 0 && hash_ == hash[i])
         {
             logical_number = i;
             break;
@@ -380,10 +380,59 @@ int list<TypeValue, HashValue>::FindValue (HashValue hash_)
 }
 
 #include <iostream>
+template <>
+int list<int, char*>::FindValue (char* hash_)
+{
+    int logical_number = 0;
+    char tmp = 1;
+    int k = 0;
+
+    for (int i = head; ;)
+    {
+
+        __asm__ volatile("cmp %[size], %[null]\n\t"
+                         "je not_equal\n\t"
+                         "cld\n\t"
+                         "loop_str:\n\t"
+                         "cmp %E[str1], %[null]\n\t"
+                         "je end_str\n\t"
+                         "mov %E[str1], %[tmp]\n\t"
+                         "cmp %[tmp], %E[str2]\n\t"
+                         "inc %[str1]\n\t"
+                         "inc %[str2]\n\t"
+                         "jmp loop_str\n\t"
+                         "end_str:\n\t"
+                         "cmp %E[str2], %[null]\n\t"
+                         "jne not_equal\n\t"
+                         "mov %[num], %[log_num]\n\t"
+                         "not_equal:\n\t"
+
+        : [log_num] "=r" (logical_number), [tmp] "=r" (tmp)
+        : [size] "r" (size), [num] "r" (i), [str1] "D" (hash_), [str2] "S" (hash[i]), [null] "r" (k));
+
+        if (logical_number == i)
+        {
+            break;
+        }
+
+        if (i == tail)
+        {
+            return NO_POSITION;
+        }
+
+        i = next[i];
+    }
+    return logical_number;
+}
+
+#include <iostream>
 template <typename TypeValue, typename HashValue>
 list <TypeValue, HashValue>::~list ()
 {
-    delete next, prev, value, hash;
+    delete [] next;
+    delete [] prev;
+    delete [] value;
+    delete [] hash;
 }
 
 template <typename TypeValue, typename HashValue>
