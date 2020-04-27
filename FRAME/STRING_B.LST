@@ -1,0 +1,146 @@
+Turbo Assembler	 Version 4.1	    03/01/20 16:53:01	    Page 1
+string_b.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5				     public frame_text
+      6				     extrn EndLabel
+      7				     extrn frame: proc
+      8
+      9	      =0021		     OUTPUT		 equ 21h
+     10	      =4C00		     OUTPUT_CODE_AX	 equ 4C00h
+     11	      =FF7E		     FRAME_COLOUR	 equ 0FF7eh
+     12	      =0050		     SYMBOLS_ONE_LINE	 equ 80
+     13	      =B800		     VIDEO_MEMORY	 equ 0b800h
+     14	      =000F		     LINES		 equ 15
+     15	      =003C		     WIDTH		 equ 60
+*Warning* string_b.asm(15) Reserved word used as symbol: WIDTH
+     16	      =0007		     LEFT_CORNER_X	 equ 7
+     17	      =000F		     LEFT_CORNER_Y	 equ 15
+     18
+     19	0100			     frame_text	     proc
+     20	0100  B8 B800				     mov ax, VIDEO_MEMORY
+     21	0103  8E C0				     mov es, ax
+     22
+     23	0105  B9 FF7E				     mov cx, FRAME_COLOUR
+     24	0108  B3 0F				     mov bl, LINES
+     25	010A  B7 3C				     mov bh, WIDTH
+     26	010C  B2 07				     mov dl, LEFT_CORNER_X
+     27	010E  B6 0F				     mov dh, LEFT_CORNER_Y
+     28
+     29	0110  E8 0000e				     call frame
+     30
+     31	0113  B8 B800				     mov ax, VIDEO_MEMORY
+     32	0116  8E C0				     mov es, ax
+     33
+     34	0118  B8 0050				     mov ax, 80d
+     35	011B  BB 000B				     mov bx, 11d
+     36	011E  F7 EB				     imul bx
+     37
+     38	0120  B9 0014				     mov cx, 20d
+     39	0123  BA 0000				     mov dx, 0
+     40
+     41	0126  E8 0026				     call count_bx
+     42	0129			     loop_start:
+     43
+     44	0129  26: 88 17				     mov byte ptr es:[bx], dl
+     45	012C  43				     inc bx
+     46	012D  41				     inc cx
+     47	012E  26: C6 07	4E			     mov byte ptr es:[bx], 4eh
+     48	0132  43				     inc bx
+     49
+     50	0133  81 FA 00FF			     cmp dx, 0FFh
+     51	0137  74 26				     je	local_1
+     52
+     53	0139  83 F9 3C				     cmp cx, 60d
+     54	013C  74 03				     je	change_str
+     55
+     56	013E  EB 0A 90				     jmp skip
+Turbo Assembler	 Version 4.1	    03/01/20 16:53:01	    Page 2
+string_b.asm
+
+
+
+     57
+     58	0141  B9 0014		     change_str:     mov cx, 20d
+     59	0144  05 0050				     add ax, 80d
+     60	0147  E8 0005				     call count_bx
+     61
+     62	014A			     skip:
+     63	014A  FE C2				     inc dl
+     64	014C  41				     inc cx
+     65	014D  E2 DA				     loop loop_start
+     66
+     67	014F			     count_bx:
+     68	014F  8B D8				     mov bx, ax
+     69	0151  03 D9				     add bx, cx
+     70	0153  50				     push ax
+     71	0154  B8 0002				     mov ax, 2d
+     72	0157  52				     push dx
+     73	0158  F7 EB				     imul bx
+     74	015A  8B D8				     mov bx, ax
+     75	015C  5A				     pop dx
+     76	015D  58				     pop ax
+     77	015E  C3		     ret
+     78
+     79	015F			     local_1:
+     80	015F			     endp
+     81				     end
+Turbo Assembler	 Version 4.1	    03/01/20 16:53:01	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "string_b"
+??TIME				  Text	 "16:53:01"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 STRING_B
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+CHANGE_STR			  Near	 DGROUP:0141
+COUNT_BX			  Near	 DGROUP:014F
+ENDLABEL			  Word	 DGROUP:---- Extern
+FRAME				  Near	 DGROUP:---- Extern
+FRAME_COLOUR			  Number FF7E
+FRAME_TEXT			  Near	 DGROUP:0100
+LEFT_CORNER_X			  Number 0007
+LEFT_CORNER_Y			  Number 000F
+LINES				  Number 000F
+LOCAL_1				  Near	 DGROUP:015F
+LOOP_START			  Near	 DGROUP:0129
+OUTPUT				  Number 0021
+OUTPUT_CODE_AX			  Number 4C00
+SKIP				  Near	 DGROUP:014A
+SYMBOLS_ONE_LINE		  Number 0050
+VIDEO_MEMORY			  Number B800
+WIDTH				  Number 003C
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  015F Word	  Public  CODE
+Turbo Assembler	 Version 4.1	    03/01/20 16:53:01	    Page 4
+Error Summary
+
+
+
+*Warning* string_b.asm(15) Reserved word used as symbol: WIDTH
+

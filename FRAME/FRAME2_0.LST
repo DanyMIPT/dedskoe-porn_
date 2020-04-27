@@ -1,0 +1,120 @@
+Turbo Assembler	 Version 4.1	    03/02/20 10:15:13	    Page 1
+frame2_0.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5				     public EndLabel
+      6				     public frame
+      7				     public wait_
+      8
+      9				     ;==================================================================================
+     10				     ;In: es - VIDEO_MEMORY (ob800h)
+     11				     ;	  cx - FRAME COLOUR
+     12				     ;	  bl - LINES
+     13				     ;	  bh - WIDTH
+     14				     ;	  dx - LEFT CORNER of THE FRAME(dl - LINE, dh -	coloumn)
+     15				     ;	  di
+     16				     ;===============================================================================
+     17
+     18	0100			     EndStart:
+     19	0100			     frame	     proc
+     20
+     21	0100  33 FF				     xor di, di
+     22	0102  33 C0				     xor ax, ax
+     23	0104  8A C2				     mov al, dl
+     24	0106  BF 0050				     mov di, 80
+     25
+     26	0109  52				     push dx
+     27	010A  F7 E7				     mul di
+     28	010C  5A				     pop dx
+     29
+     30	010D  02 C6				     add al, dh
+     31	010F  80 D4 00				     adc ah, 0
+     32
+     33	0112  BF 0002				     mov di, 2
+     34	0115  F7 E7				     mul di
+     35
+     36	0117  8B F8				     mov di, ax
+     37	0119  8B C1				     mov ax, cx
+     38
+     39	011B			     first:
+     40	011B  33 C9				     xor     cx, cx
+     41	011D  8A CF				     mov     cl, bh
+     42
+     43	011F  F3> AB				     rep     stosw
+     44
+     45
+     46	0121  50				     push ax
+     47	0122  B8 0050				     mov ax, 80
+     48	0125  2A C7				     sub al, bh
+     49	0127  BA 0002				     mov dx, 2
+     50	012A  F7 E2				     mul dx
+     51	012C  03 F8				     add     di, ax
+     52	012E  58				     pop ax
+     53
+     54	012F  B9 FFFF				     mov     cx, 0FFFFh
+     55	0132  E8 000A				     call wait_
+     56
+     57	0135  FE CB				     dec     bl
+Turbo Assembler	 Version 4.1	    03/02/20 10:15:13	    Page 2
+frame2_0.asm
+
+
+
+     58	0137  80 FB 00				     cmp     bl, 0
+     59	013A  74 02				     je	     skip
+     60
+     61	013C  EB DD				     jmp     first
+     62	013E			     skip:
+     63	013E  C3				     ret
+     64	013F					     endp
+     65
+     66	013F			     wait_:
+     67	013F			     wait__:
+     68	013F  E2 FE				     loop wait__
+     69	0141  C3				     ret
+     70
+     71	0142			     EndLabel:
+     72				     End
+Turbo Assembler	 Version 4.1	    03/02/20 10:15:13	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/02/20"
+??FILENAME			  Text	 "frame2_0"
+??TIME				  Text	 "10:15:13"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 FRAME2_0
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+ENDLABEL			  Near	 DGROUP:0142
+ENDSTART			  Near	 DGROUP:0100
+FIRST				  Near	 DGROUP:011B
+FRAME				  Near	 DGROUP:0100
+SKIP				  Near	 DGROUP:013E
+WAIT_				  Near	 DGROUP:013F
+WAIT__				  Near	 DGROUP:013F
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  0142 Word	  Public  CODE
+

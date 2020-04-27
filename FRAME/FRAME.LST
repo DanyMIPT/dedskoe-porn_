@@ -1,0 +1,133 @@
+Turbo Assembler	 Version 4.1	    03/01/20 20:02:46	    Page 1
+frame.asm
+
+
+
+      1	0000			     .model tiny
+      2
+      3	      =0002		     double = 2
+      4
+      5	0000			     .code
+      6				     org 100h
+      7
+      8	0100			     Start:
+      9	0100  B8 B800				     mov ax, 0b800h
+     10	0103  8E C0				     mov es, ax
+     11
+     12	0105  B8 0050				     mov ax, 80d
+     13	0108  BA 0006				     mov dx, 6d
+     14	010B  F7 E2				     mul dx
+     15	010D  BA 000A				     mov dx, 10d
+     16	0110  03 C2				     add ax, dx
+     17	0112  B9 0002				     mov cx, 2
+     18	0115  F7 E1				     mul cx
+     19	0117  8B D8				     mov bx, ax
+     20
+     21	0119  B8 0050				     mov ax, 80d
+     22	011C  BA 0012				     mov dx, 18d
+     23	011F  F7 E2				     mul dx
+     24	0121  BA 000A				     mov dx, 10d
+     25	0124  03 C2				     add ax, dx
+     26	0126  B9 0002				     mov cx, 2
+     27	0129  F7 E1				     mul cx
+     28	012B  8B F8				     mov di, ax
+     29
+     30	012D  B9 003C				     mov cx, 60
+     31	0130			     loop_str:
+     32	0130  26: C6 07	02			     mov byte ptr es:[bx], 2
+     33	0134  43				     inc bx
+     34	0135  26: C6 07	62			     mov byte ptr es:[bx], 62h
+     35	0139  43				     inc bx
+     36
+     37	013A  26: C6 05	02			     mov byte ptr es:[di], 2
+     38	013E  47				     inc di
+     39	013F  26: C6 05	62			     mov byte ptr es:[di], 62h
+     40	0143  47				     inc di
+     41	0144  E2 EA		     loop loop_str
+     42
+     43	0146  B8 0050				     mov ax, 80d
+     44	0149  BA 0007				     mov dx, 7d
+     45	014C  F7 E2				     mul dx
+     46	014E  8B D0				     mov dx, ax
+     47
+     48	0150  B9 000A				     mov cx, 10d
+     49
+     50	0153			     loop_wall:
+     51	0153  8B C2				     mov ax, dx
+     52	0155  03 C1				     add ax, cx
+     53	0157  BB 0002				     mov bx, 2
+     54	015A  52				     push dx
+     55	015B  F7 E3				     mul bx
+     56	015D  8B D8				     mov bx, ax
+     57	015F  5A				     pop dx
+Turbo Assembler	 Version 4.1	    03/01/20 20:02:46	    Page 2
+frame.asm
+
+
+
+     58
+     59	0160  26: C6 07	02			     mov byte ptr es:[bx], 2
+     60	0164  43				     inc bx
+     61	0165  26: C6 07	62			     mov byte ptr es:[bx], 62h
+     62
+     63	0169  8B C2				     mov ax, dx
+     64	016B  03 C1				     add ax, cx
+     65	016D  05 003B				     add ax, 59
+     66	0170  BF 0002				     mov di, 2
+     67	0173  52				     push dx
+     68	0174  F7 E7				     mul di
+     69	0176  5A				     pop dx
+     70	0177  8B F8				     mov di, ax
+     71
+     72	0179  26: C6 05	02			     mov byte ptr es:[di], 2
+     73	017D  47				     inc di
+     74	017E  26: C6 05	62			     mov byte ptr es:[di], 62h
+     75
+     76	0182  83 C2 50				     add dx, 80
+     77	0185  41				     inc cx
+     78
+     79	0186  81 FA 05F0			     cmp dx, 19d * 80d
+     80	018A  74 02				     je	out_loop
+     81	018C  E2 C5		     loop loop_wall
+     82
+     83	018E			     out_loop:
+     84	018E  B8 4C00				     mov ax, 4C00h
+     85	0191  CD 21				     int 21h
+     86
+     87				     end Start
+Turbo Assembler	 Version 4.1	    03/01/20 20:02:46	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "frame	  "
+??TIME				  Text	 "20:02:46"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 FRAME
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+DOUBLE				  Number 0002
+LOOP_STR			  Near	 DGROUP:0130
+LOOP_WALL			  Near	 DGROUP:0153
+OUT_LOOP			  Near	 DGROUP:018E
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  0193 Word	  Public  CODE
+
