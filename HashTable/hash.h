@@ -69,9 +69,30 @@ hash_t my_hash (const char* word, size_t mod)
     return sum % mod;
 }
 
+#define ASM
 hash_t murmur (const char* word, size_t mod)
 {
+#ifdef ASM
+    size_t len = 0;
+    __asm__ volatile (".intel_syntax noprefix\n\t"
+                      "mov eax, 0\n\t"
+                      "while:\n\t"
+                      "mov bl, byte [edi]\n\t"
+                      "cmp bl, 0\n\t"
+                      "je end_len\n\t"
+                      "inc eax\t\n"
+                      "inc edi\n\t"
+                      "jmp while\n\t"
+                      "end_len:\n\t"
+                      "mov %[len], eax\n\t"
+                      ".att_syntax prefix"
+
+    : [str] "=D" (word), [len] "=r" (len)
+    :
+    : "eax", "bl", "memory");
+#else
     size_t len = strlen (word);
+#endif
     const unsigned int m = 0x5bd1e995;
     const unsigned int seed = 0;
     const int r = 24;

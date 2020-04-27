@@ -26,9 +26,11 @@ private:
     size_t num_lists;
     hash_func hash;
     static char* ClearText (const char* file, hash_t& new_size);
+    int find_  (char* word);
 public:
     void insert (char* word, TypeValue value = 0);
-    int find  (char* word);
+
+    TypeValue& find  (char* word);
     void erase  (char* word);
     void clear (hash_func hash_ = nullptr);
 
@@ -137,7 +139,7 @@ void HashTable<TypeValue>::dumpSize (const char* file)
 template <typename TypeValue>
 void HashTable<TypeValue>::insert (char* word, TypeValue value)
 {
-    if (find (word) == NO_POSITION)
+    if (find_ (word) == NO_POSITION)
     {
         int num = hash (word, num_lists);
         List[num]->PushBack (word, value);
@@ -146,7 +148,7 @@ void HashTable<TypeValue>::insert (char* word, TypeValue value)
 }
 
 template <typename TypeValue>
-int HashTable<TypeValue>::find (char* word)
+int HashTable<TypeValue>::find_ (char* word)
 {
     int num = hash (word, num_lists);
 
@@ -158,9 +160,19 @@ int HashTable<TypeValue>::find (char* word)
 }
 
 template <typename TypeValue>
+TypeValue& HashTable<TypeValue>::find (char* word)
+{
+    int num = hash (word, num_lists);
+
+    int log_num = List[num]->FindValue (word);
+    if (log_num != NO_POSITION)
+        return List[num]->value[log_num];
+}
+
+template <typename TypeValue>
 void HashTable<TypeValue>::erase (char* word)
 {
-    int log_num = find (word);
+    int log_num = find_ (word);
 
     if (log_num == NO_POSITION)
         return;
@@ -175,7 +187,7 @@ TypeValue& HashTable<TypeValue>::operator[] (char* word)
 {
     int num = hash (word, num_lists);
 
-    int phys_num = find (word);
+    int phys_num = find_ (word);
     if (phys_num == NO_POSITION)
     {
         return List[num].value[ (List[num].PushBack (word))];
@@ -228,7 +240,7 @@ void HashTable <TypeValue>::update (char* buf, hash_t size_clear)
 {
     for (size_t i = 0; i < size_clear - 1; i++)
     {
-        insert (&buf[i]);
+        insert (&buf[i], i);
 
         do
         {

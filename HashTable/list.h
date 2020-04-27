@@ -379,41 +379,53 @@ int list<TypeValue, HashValue>::FindValue (HashValue hash_)
     return logical_number;
 }
 
-#include <iostream>
+#define ASM
 template <>
 int list<int, char*>::FindValue (char* hash_)
 {
     int logical_number = 0;
-    char tmp = 1;
-    int k = 0;
 
     for (int i = head; ;)
     {
-
-        __asm__ volatile("cmp %[size], %[null]\n\t"
+#ifdef ASM
+        __asm__ volatile (".intel_syntax noprefix\n\t"
+                         "cmp %[size], 0\n\t"
                          "je not_equal\n\t"
                          "cld\n\t"
                          "loop_str:\n\t"
-                         "cmp %E[str1], %[null]\n\t"
+                         "mov al, byte [edi]\n\t"
+                         "cmp al, 0\n\t"
                          "je end_str\n\t"
-                         "mov %E[str1], %[tmp]\n\t"
-                         "cmp %[tmp], %E[str2]\n\t"
-                         "inc %[str1]\n\t"
-                         "inc %[str2]\n\t"
+                         "mov al, byte [edi]\n\t"
+                         "cmp al, byte [esi]\n\t"
+                         "jne not_equal\n\t"
+                         "inc edi\n\t"
+                         "inc esi\n\t"
                          "jmp loop_str\n\t"
                          "end_str:\n\t"
-                         "cmp %E[str2], %[null]\n\t"
+                         "mov al, byte [edi]\n\t"
+                         "cmp al, 0\n\t"
                          "jne not_equal\n\t"
-                         "mov %[num], %[log_num]\n\t"
-                         "not_equal:\n\t"
+                         "mov %[log_num], %[num]\n\t"
+                         "not_equal: \n\t"
+                         ".att_syntax prefix"
 
-        : [log_num] "=r" (logical_number), [tmp] "=r" (tmp)
-        : [size] "r" (size), [num] "r" (i), [str1] "D" (hash_), [str2] "S" (hash[i]), [null] "r" (k));
+        : [log_num] "=r" (logical_number), [str1] "=D" (hash_), [str2] "=S" (hash[i])
+        : [size] "r" (size), [num] "r" (i)
+        : "al", "memory");
 
         if (logical_number == i)
         {
             break;
         }
+#else
+        if (size != 0 && strcmp (hash_, hash[i]) == 0)
+        {
+            logical_number = i;
+            break;
+        }
+#endif
+
 
         if (i == tail)
         {
@@ -422,6 +434,7 @@ int list<int, char*>::FindValue (char* hash_)
 
         i = next[i];
     }
+
     return logical_number;
 }
 
