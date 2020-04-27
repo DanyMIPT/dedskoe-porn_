@@ -1,0 +1,66 @@
+Turbo Assembler	 Version 4.1	    03/01/20 16:07:48	    Page 1
+memcmp.asm
+
+
+
+      1	0000			     .model  tiny
+      2	0000			     .code
+      3				     org     100h
+      4
+      5	0100			     start:
+      6	0100  B8 4C00			     mov     ax, 4C00h
+      7	0103  CD 21			     int     21h
+      8
+      9				     ;===============================================================================================
+     10				     =====
+     11				     ; Inputs:	     DI	- first	address
+     12				     ;		     SI	- second address
+     13				     ;		     CX	- length
+     14				     ; Outputs:	     FLAGS - result of CMP first unequal bytes
+     15				     ; Destructs:    DI, SI, CX, ES, AX
+     16				     ;===============================================================================================
+     17				     ==
+     18
+     19	0105			     memcmp  proc
+     20
+     21	0105  8C D8			     mov     ax, ds
+     22	0107  8E C0			     mov     es, ax
+     23
+     24	0109  F3> A6			     repe    cmpsb
+     25	010B  C3			     ret
+     26	010C			     memcmp  endp
+     27
+     28				     end start
+Turbo Assembler	 Version 4.1	    03/01/20 16:07:48	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "memcmp  "
+??TIME				  Text	 "16:07:48"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 MEMCMP
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+MEMCMP				  Near	 DGROUP:0105
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  010C Word	  Public  CODE
+

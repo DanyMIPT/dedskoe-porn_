@@ -1,0 +1,47 @@
+Turbo Assembler	 Version 4.1	    03/01/20 16:08:02	    Page 1
+memset.asm
+
+
+
+      1	0000			     .model  tiny
+      2	0000			     .code
+      3				     org     100h
+      4
+      5	0100			     start:
+      6
+      7	0100  B8 4C00			     mov     ax, 4C00h
+      8	0103  CD 21			     int     21h
+      9
+     10				     end     start
+Turbo Assembler	 Version 4.1	    03/01/20 16:08:02	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "memset  "
+??TIME				  Text	 "16:08:02"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 MEMSET
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  0105 Word	  Public  CODE
+

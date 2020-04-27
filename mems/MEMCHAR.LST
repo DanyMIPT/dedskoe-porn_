@@ -1,0 +1,70 @@
+Turbo Assembler	 Version 4.1	    03/01/20 16:07:41	    Page 1
+memchar.asm
+
+
+
+      1	0000			     .model  tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5	0100			     Start:
+      6	0100  E8 0005			     call    memchr
+      7
+      8	0103  B8 4C00			     mov     ax, 4C00h
+      9	0106  CD 21			     int     21h
+     10				     ;==============================================================================================
+     11				     ; Inputs:	     DS:DI - memory address
+     12				     ;		     CX	- length
+     13				     ;		     AL	- byte to find
+     14				     ; Outputs:	     DI	- adress of first equal	byte
+     15				     ;		     or	DI + CX	if there is no such byte
+     16				     ; Destructs:    DI, CX, AL, ES
+     17				     ;===============================================================================================
+     18				     ====
+     19	0108			     memchr  proc
+     20
+     21	0108  FC			     cld	     ;очищает дерекшен флаг
+     22
+     23	0109  F2> AE			     repne   scasb
+     24
+     25	010B  75 01			     jne     end_mem
+     26	010D  4F			     dec     di
+     27
+     28	010E  C3		     end_mem:	     ret
+     29	010F			     memchr  endp
+     30
+     31				     end Start
+Turbo Assembler	 Version 4.1	    03/01/20 16:07:41	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "memchar "
+??TIME				  Text	 "16:07:41"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 MEMCHAR
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+END_MEM				  Near	 DGROUP:010E
+MEMCHR				  Near	 DGROUP:0108
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  010F Word	  Public  CODE
+

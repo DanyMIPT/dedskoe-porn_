@@ -1,0 +1,67 @@
+Turbo Assembler	 Version 4.1	    03/01/20 16:07:57	    Page 1
+memcpy.asm
+
+
+
+      1	0000			     .model  tiny
+      2	0000			     .code
+      3				     org     100h
+      4
+      5	0100			     start:
+      6
+      7	0100  B8 4C00			     mov     ax, 4C00h
+      8	0103  CD 21			     int     21h
+      9
+     10				     ;===============================================================================================
+     11				     ==
+     12				     ; Inputs:	     DS:SI - source address
+     13				     ;		     ES:DI - destination address
+     14				     ;		     CX	- length
+     15				     ; Outputs:	     Nothing
+     16				     ; Destructs:    DI, SI, CX, AX
+     17				     ;===============================================================================================
+     18				     ========
+     19
+     20	0105			     memcpy  proc
+     21
+     22	0105  FC			     cld
+     23	0106  F3> A4			     rep     movsb
+     24
+     25	0108  C3			     ret
+     26
+     27	0109			     memcpy  endp
+     28
+     29				     end     start
+Turbo Assembler	 Version 4.1	    03/01/20 16:07:57	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "memcpy  "
+??TIME				  Text	 "16:07:57"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 MEMCPY
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+MEMCPY				  Near	 DGROUP:0105
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  0109 Word	  Public  CODE
+
