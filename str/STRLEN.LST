@@ -1,0 +1,69 @@
+Turbo Assembler	 Version 4.1	    02/21/20 19:42:21	    Page 1
+strlen.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5	0100			     Start:
+      6	0100  7A 64 72 24	     Text:	     db	'zdr', '$'
+      7	0104  E8 0005				     call strlen
+      8
+      9	0107  B8 4C00				     mov ax, 4c00h
+     10	010A  CD 21				     int 21h
+     11
+     12				     ;==============================================================================
+     13				     ; Counts number of	characters in the string
+     14				     ; Entry: DI - adress of string
+     15				     ; Del:   AX, BX
+     16				     ; RET:   DI - length of the string
+     17				     ;===============================================================================
+     18
+     19	010C			     strlen	     proc
+     20
+     21	010C  8B DF				     mov bx, di
+     22	010E  B0 00				     mov al, 00
+     23	0110  F2> AE				     repnz scasb
+     24
+     25	0112  2B FB				     sub di, bx
+     26	0114  C3				     ret
+     27
+     28	0115					     endp
+     29
+     30				     end Start
+Turbo Assembler	 Version 4.1	    02/21/20 19:42:21	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/21/20"
+??FILENAME			  Text	 "strlen  "
+??TIME				  Text	 "19:42:21"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 STRLEN
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+START				  Near	 DGROUP:0100
+STRLEN				  Near	 DGROUP:010C
+TEXT				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  0115 Word	  Public  CODE
+

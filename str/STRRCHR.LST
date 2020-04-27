@@ -1,0 +1,81 @@
+Turbo Assembler	 Version 4.1	    03/01/20 15:47:18	    Page 1
+strrchr.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5	0100			     Start:
+      6	0100  7A 64 72 24	     Text:	     db	'zdr', '$'
+      7	0104  BE 0100r				     mov si, offset Text
+      8	0107  E8 0005				     call strrchar
+      9
+     10	010A  B8 4C00				     mov ax, 4c00h
+     11	010D  CD 21				     int 21h
+     12
+     13				     ;===================================================================================
+     14				     ; Entry: SI - string, al -	symbol
+     15				     ; Ret:   BX - string
+     16				     ;===================================================================================
+     17
+     18	010F			     strrchar	     proc
+     19	010F  33 DB				     xor bx, bx
+     20
+     21	0111			     find_last_char:
+     22	0111  80 3D 00				     cmp byte ptr ds:[di], 00h
+     23	0114  74 07				     je	end_strr
+     24
+     25	0116  AE				     scasb
+     26	0117  75 02				     jne no_write_di
+     27
+     28	0119  8B DF				     mov bx, di
+     29
+     30	011B			     no_write_di:
+     31
+     32	011B  EB F4				     jmp find_last_char
+     33
+     34	011D			     end_strr:
+     35	011D  C3				     ret
+     36	011E					     endp
+     37
+     38
+     39				     end Start
+Turbo Assembler	 Version 4.1	    03/01/20 15:47:18	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "03/01/20"
+??FILENAME			  Text	 "strrchr "
+??TIME				  Text	 "15:47:18"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 STRRCHR
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+END_STRR			  Near	 DGROUP:011D
+FIND_LAST_CHAR			  Near	 DGROUP:0111
+NO_WRITE_DI			  Near	 DGROUP:011B
+START				  Near	 DGROUP:0100
+STRRCHAR			  Near	 DGROUP:010F
+TEXT				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  011E Word	  Public  CODE
+

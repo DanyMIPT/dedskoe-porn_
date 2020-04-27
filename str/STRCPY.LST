@@ -1,0 +1,79 @@
+Turbo Assembler	 Version 4.1	    02/21/20 19:44:41	    Page 1
+strcpy.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5				     locals $$
+      6
+      7	0100			     Start:
+      8	0100  B8 4C00				     mov ax, 4c00h
+      9	0103  CD 21				     int 21h
+     10
+     11				     ;================================================================================
+     12				     ; Entry: DS:SI - pointer to the string, ES:DI - place to copy
+     13				     ; Ret:   DI - copied string
+     14				     ;===============================================================================
+     15
+     16	0105			     strcpy	     proc
+     17
+     18	0105			     while:
+*Warning* strcpy.asm(18) Reserved word used as symbol: WHILE
+     19	0105  26: 80 3C	00			     cmp byte ptr es:[si], 00h
+     20	0109  74 03				     je	out
+     21
+     22	010B  A4				     movsb
+     23	010C  EB F7				     jmp while
+     24
+     25	010E			     out:
+*Warning* strcpy.asm(25) Reserved word used as symbol: OUT
+     26	010E  C3				     ret
+     27	010F					     endp
+     28
+     29
+     30				     end Start
+Turbo Assembler	 Version 4.1	    02/21/20 19:44:41	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/21/20"
+??FILENAME			  Text	 "strcpy  "
+??TIME				  Text	 "19:44:41"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 STRCPY
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+OUT				  Near	 DGROUP:010E
+START				  Near	 DGROUP:0100
+STRCPY				  Near	 DGROUP:0105
+WHILE				  Near	 DGROUP:0105
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  010F Word	  Public  CODE
+Turbo Assembler	 Version 4.1	    02/21/20 19:44:41	    Page 3
+Error Summary
+
+
+
+*Warning* strcpy.asm(18) Reserved word used as symbol: WHILE
+*Warning* strcpy.asm(25) Reserved word used as symbol: OUT
+

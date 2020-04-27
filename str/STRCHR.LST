@@ -1,0 +1,76 @@
+Turbo Assembler	 Version 4.1	    02/21/20 19:33:27	    Page 1
+strchr.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5	0100			     Start:
+      6	0100  7A 64 72 24	     Text:	     db	'zdr', '$'
+      7	0104  BE 0100r				     mov si, offset Text
+      8	0107  B8 4C00				     mov ax, 4c00h
+      9	010A  CD 21				     int 21h
+     10
+     11				     ;====================================================================================
+     12				     ; Entry: ds:SI - string, al - symbol
+     13				     ; Ret:   DI - string
+     14				     ;=================================================================================
+     15
+     16	010C			     strchar	     proc
+     17
+     18	010C			     find_char:
+     19	010C  80 3D 00				     cmp byte ptr ds:[di], 00h
+     20	010F  74 05				     je	no_char
+     21
+     22	0111  AE				     scasb
+     23	0112  75 F8				     jne find_char
+     24
+     25	0114			     end_proc:
+     26	0114  4F				     dec di
+     27	0115  C3				     ret
+     28	0116					     endp
+     29
+     30	0116			     no_char:
+     31	0116  BF 0001				     mov di, 1
+     32	0119  EB F9				     jmp end_proc
+     33
+     34				     end Start
+Turbo Assembler	 Version 4.1	    02/21/20 19:33:27	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/21/20"
+??FILENAME			  Text	 "strchr  "
+??TIME				  Text	 "19:33:27"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 STRCHR
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+END_PROC			  Near	 DGROUP:0114
+FIND_CHAR			  Near	 DGROUP:010C
+NO_CHAR				  Near	 DGROUP:0116
+START				  Near	 DGROUP:0100
+STRCHAR				  Near	 DGROUP:010C
+TEXT				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  011B Word	  Public  CODE
+
