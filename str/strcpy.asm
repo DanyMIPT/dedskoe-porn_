@@ -9,8 +9,9 @@ Start:
 		int 21h 
 
 ;================================================================================
-; Entry: DS:SI - pointer to the string, ES:DI - place to copy
-; Ret:	 DI - copied string
+; Entry:  DS:SI - pointer to the string, ES:DI - place to copy
+; Ret:	  DI - copied string
+; Delete: -
 ;===============================================================================
 
 strcpy		proc
