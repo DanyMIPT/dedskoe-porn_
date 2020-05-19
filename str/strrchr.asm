@@ -11,8 +11,9 @@ Text:		db 'zdr', '$'
 		int 21h
 
 ;===================================================================================
-; Entry: SI - string, al - symbol
-; Ret:   BX - string
+; Entry:  SI - string, al - symbol
+; Ret:    BX - string
+; Delete: BX
 ;===================================================================================
 
 strrchar	proc
