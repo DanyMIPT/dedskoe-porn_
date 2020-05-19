@@ -9,8 +9,9 @@ Text:		db 'zdr', '$'
 		int 21h 
 
 ;====================================================================================
-; Entry: ds:SI - string, al - symbol
-; Ret:   DI - string
+; Entry:  ds:SI - string, al - symbol
+; Ret:    DI - string
+; Delete: -
 ;=================================================================================
 
 strchar		proc
