@@ -35,6 +35,8 @@ _start:
 
 	mov r8, buf
 	call pars
+	
+	add rsp, 56
 
 	call end
 
