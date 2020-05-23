@@ -16,6 +16,8 @@ Text:		db 'zdr', '$'
 
 strchar		proc
 
+		cld
+		
 find_char:
 		cmp byte ptr ds:[di], 00h
 		je no_char
