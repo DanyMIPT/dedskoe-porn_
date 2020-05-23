@@ -40,6 +40,7 @@ first:
 		xor	cx, cx
 		mov	cl, bh 
 
+		cld
 		rep	stosw
 
 		
